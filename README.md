@@ -1,29 +1,21 @@
-# Power-Noise Verification
+# SPIRAL
 
 ### Introduction
-This is a Python implementation of **power-noise verification tool** for the chip power grids.
+This is a Python implementation of **SPIRAL**, a signal-power integrity co-analysis framework for high-speed inter-chiplet serial links validation. (https://ieeexplore.ieee.org/document/10473908)
 
-The design proposes a parsing algorithm for power grid design files that can pre-process Spice files to build the data structure of the grid. The design of this data structure facilitates the application of **modified nodal analysis (MNA)**, which transforms the complex abstract grid analysis problem into a simple mathematical problem, a linear system Ax=b. Then the **Cholesky** decomposition, **LU** decomposition of sparse matrix and **conjugate gradient** method are applied to obtain the solution of grid node voltage. 
-
-The simulation results indicate that the tool has high performance and is able to accomplish at least the noise verification for a million-node scale grid.
-
-
+The framework first builds equivalent models for the links with a **machine learning** based transmitter model and the **impulse response** of the channel and receiver. Then, the signal-power integrity is co-analyzed with a **pulse response** based method using the equivalent models. The framework calculates the output signals corresponding to the given input data and generates eye diagrams.
 
 ## Dependencies
-- Python >= 3.7
+- Python = 3.8
+- PyTorch >= 1.2.0
 - Python packages: 
   - numpy
-  - scipy.sparse
-  - [scikit-sparse](https://github.com/scikit-sparse/scikit-sparse) = 0.4.4
-- SuiteSparse
-
-
+  - scipy
+  - skrf
 
 ## Usage
+First, prepare the trained TX model and S-parameters of the channel-RX. A few examples are provided, please refer to `./checkpoint` to find TX models and `./link_rx` to find channel-RX models. 
 
-**INPUT:** the Spice file of power grid design. Some examples of Spice files are saved at `./example/data`. The reference  solution files are also provided in it. Please refer to  [**IBM Power Grid Benchmarks**](https://web.ece.ucsb.edu/~lip/PGBenchmarks/ibmpgbench.html) that our examples come from for more information. 
+Then, build the info file as `b1_l3.txt` and `b2_s3.txt`, which defines the models, UIs, S-parameters information, $Z_0$, $V_p$, dc resistance of channel, $C_L$, rising/falling time, input amplitude, input data, step and whether to consider the PSN and de-emphasis. 
 
-**OUTPUT:** the solution file for power grid analysis problem, exactly that is the grid node voltage. The solutions of these examples are saved at `./example/output`. The format of solution file is very simple as follows.
-
-`<nodeName>  voltageValue`
-
+Run `spiral_sipi.py` to obtain the output signals and eye diagrams.
